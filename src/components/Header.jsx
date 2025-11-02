@@ -1,10 +1,27 @@
 import React from 'react';
-import { Moon, Sun, Plus, Sparkles } from 'lucide-react';
+import { Moon, Sun, Plus, Sparkles, LogOut, User } from 'lucide-react';
 
-const Header = ({ theme, onToggleTheme, onAddTask, onOpenAIInsights }) => {
+const Header = ({ theme, onToggleTheme, onAddTask, onOpenAIInsights, user, onLogout }) => {
     return (
         <header className="header">
-            <h1>AI Kanban Board</h1>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                <h1>AI Kanban Board</h1>
+                {user && (
+                    <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.5rem',
+                        padding: '0.5rem 1rem',
+                        background: 'var(--bg-tertiary)',
+                        borderRadius: '6px',
+                        fontSize: '0.875rem',
+                        color: 'var(--text-muted)'
+                    }}>
+                        <User size={14} />
+                        {user.email}
+                    </div>
+                )}
+            </div>
             <div className="header-actions">
                 <button
                     onClick={onOpenAIInsights}
@@ -27,6 +44,11 @@ const Header = ({ theme, onToggleTheme, onAddTask, onOpenAIInsights }) => {
                     <Plus size={16} />
                     Add Task
                 </button>
+                {user && (
+                    <button onClick={onLogout} className="btn btn-secondary" title="Logout">
+                        <LogOut size={16} />
+                    </button>
+                )}
             </div>
         </header>
     );
