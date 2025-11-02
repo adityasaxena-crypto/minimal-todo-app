@@ -115,99 +115,96 @@ const AIInsightsModal = ({ isOpen, onClose, tasks, onApplyRecommendation }) => {
                                 </div>
                             ) : (
                                 <>
-                                    {activeTab === 'insights' && (
-                                        <div>
-                                            {!insights ? (
-                                                <div className="empty-state">
-                                                    <p>Click "Refresh Analysis" to generate AI insights</p>
-                                                </div>
-                                            ) : (
-                                                <div>
-                                                    {insights.summary && (
-                                                        <div className="ai-suggestions" style={{ marginBottom: '1.5rem' }}>
-                                                            <h4>Summary</h4>
-                                                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '1rem', marginTop: '1rem' }}>
-                                                                <div style={{ textAlign: 'center', padding: '1rem', background: 'var(--bg-tertiary)', borderRadius: '8px' }}>
-                                                                    <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--text-primary)' }}>
-                                                                        {insights.summary.totalTasks}
-                                                                    </div>
-                                                                    <div style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>Total Tasks</div>
-                                                                </div>
-                                                                <div style={{ textAlign: 'center', padding: '1rem', background: 'var(--bg-tertiary)', borderRadius: '8px' }}>
-                                                                    <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--success)' }}>
-                                                                        {insights.summary.completionRate}
-                                                                    </div>
-                                                                    <div style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>Completion Rate</div>
-                                                                </div>
-                                                                {insights.summary.averageTimeInProgress && (
-                                                                    <div style={{ textAlign: 'center', padding: '1rem', background: 'var(--bg-tertiary)', borderRadius: '8px' }}>
-                                                                        <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--warning)' }}>
-                                                                            {insights.summary.averageTimeInProgress}
-                                                                        </div>
-                                                                        <div style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>Avg. Time</div>
-                                                                    </div>
-                                                                )}
-                                                            </div>
-                                                            {insights.summary.mostCommonTags && insights.summary.mostCommonTags.length > 0 && (
-                                                                <div style={{ marginTop: '1rem' }}>
-                                                                    <strong>Most Common Tags:</strong>
-                                                                    <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem', flexWrap: 'wrap' }}>
-                                                                        {insights.summary.mostCommonTags.map((tag, index) => (
-                                                                            <span key={index} className="task-tag">{tag}</span>
-                                                                        ))}
-                                                                    </div>
-                                                                </div>
-                                                            )}
-                                                        </div>
-                                                    )}
+                                    {activeTab === 'insights' && !insights && (
+                                        <div className="empty-state">
+                                            <p>Click "Refresh Analysis" to generate AI insights</p>
+                                        </div>
+                                    )}
 
-                                                    {insights.insights && insights.insights.length > 0 && (
-                                                        <div>
-                                                            <h4 style={{ marginBottom: '1rem' }}>Detailed Insights</h4>
-                                                            {insights.insights.map((insight, index) => (
-                                                                <div
-                                                                    key={index}
-                                                                    className="ai-suggestion-item"
-                                                                    style={{
-                                                                        borderLeft: `4px solid ${getSeverityColor(insight.severity)}`,
-                                                                        marginBottom: '1rem'
-                                                                    }}
-                                                                >
-                                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                                                                        {getInsightIcon(insight.type)}
-                                                                        <strong>{insight.title}</strong>
-                                                                        <span
-                                                                            style={{
-                                                                                fontSize: '0.75rem',
-                                                                                padding: '0.125rem 0.5rem',
-                                                                                borderRadius: '12px',
-                                                                                background: getSeverityColor(insight.severity),
-                                                                                color: 'white'
-                                                                            }}
-                                                                        >
-                                                                            {insight.severity}
-                                                                        </span>
-                                                                    </div>
-                                                                    <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem' }}>
-                                                                        {insight.description}
-                                                                    </p>
+                                    {activeTab === 'insights' && insights && (
+                                        <div>
+                                            {insights.summary && (
+                                                <div className="ai-suggestions" style={{ marginBottom: '1.5rem' }}>
+                                                    <h4>Summary</h4>
+                                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '1rem', marginTop: '1rem' }}>
+                                                        <div style={{ textAlign: 'center', padding: '1rem', background: 'var(--bg-tertiary)', borderRadius: '8px' }}>
+                                                            <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--text-primary)' }}>
+                                                                {insights.summary.totalTasks}
+                                                            </div>
+                                                            <div style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>Total Tasks</div>
+                                                        </div>
+                                                        <div style={{ textAlign: 'center', padding: '1rem', background: 'var(--bg-tertiary)', borderRadius: '8px' }}>
+                                                            <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--success)' }}>
+                                                                {insights.summary.completionRate}
+                                                            </div>
+                                                            <div style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>Completion Rate</div>
+                                                        </div>
+                                                        {insights.summary.averageTimeInProgress && (
+                                                            <div style={{ textAlign: 'center', padding: '1rem', background: 'var(--bg-tertiary)', borderRadius: '8px' }}>
+                                                                <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--warning)' }}>
+                                                                    {insights.summary.averageTimeInProgress}
                                                                 </div>
-                                                            ))}
+                                                                <div style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>Avg. Time</div>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                    {insights.summary.mostCommonTags && insights.summary.mostCommonTags.length > 0 && (
+                                                        <div style={{ marginTop: '1rem' }}>
+                                                            <strong>Most Common Tags:</strong>
+                                                            <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem', flexWrap: 'wrap' }}>
+                                                                {insights.summary.mostCommonTags.map((tag, index) => (
+                                                                    <span key={index} className="task-tag">{tag}</span>
+                                                                ))}
+                                                            </div>
                                                         </div>
                                                     )}
                                                 </div>
                                             )}
-                                        </div>
+
+                                            {insights.insights && insights.insights.length > 0 && (
+                                                <div>
+                                                    <h4 style={{ marginBottom: '1rem' }}>Detailed Insights</h4>
+                                                    {insights.insights.map((insight, index) => (
+                                                        <div
+                                                            key={index}
+                                                            className="ai-suggestion-item"
+                                                            style={{
+                                                                borderLeft: `4px solid ${getSeverityColor(insight.severity)}`,
+                                                                marginBottom: '1rem'
+                                                            }}
+                                                        >
+                                                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                                                                {getInsightIcon(insight.type)}
+                                                                <strong>{insight.title}</strong>
+                                                                <span
+                                                                    style={{
+                                                                        fontSize: '0.75rem',
+                                                                        padding: '0.125rem 0.5rem',
+                                                                        borderRadius: '12px',
+                                                                        background: getSeverityColor(insight.severity),
+                                                                        color: 'white'
+                                                                    }}
+                                                                >
+                                                                    {insight.severity}
+                                                                </span>
+                                                            </div>
+                                                            <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem' }}>
+                                                                {insight.description}
+                                                            </p>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
                                         </div>
                                     )}
 
-                            {activeTab === 'priorities' && (
-                                <div>
-                                    {!priorityRecommendations ? (
+                                    {activeTab === 'priorities' && !priorityRecommendations && (
                                         <div className="empty-state">
                                             <p>Click "Refresh Analysis" to generate priority recommendations</p>
                                         </div>
-                                    ) : (
+                                    )}
+
+                                    {activeTab === 'priorities' && priorityRecommendations && (
                                         <div>
                                             <h4 style={{ marginBottom: '1rem' }}>Smart Priority Recommendations</h4>
                                             {priorityRecommendations.recommendations && priorityRecommendations.recommendations.length > 0 ? (
@@ -246,7 +243,6 @@ const AIInsightsModal = ({ isOpen, onClose, tasks, onApplyRecommendation }) => {
                                                 <div className="empty-state">
                                                     <p>No priority changes recommended. Your task priorities look good!</p>
                                                 </div>
-                                            )}
                                             )}
                                         </div>
                                     )}

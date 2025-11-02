@@ -7,6 +7,32 @@ class MistralAIService {
         this.apiUrl = MISTRAL_API_URL;
     }
 
+    // Helper function to clean and sanitize JSON strings
+    sanitizeJSON(jsonString) {
+        try {
+            // Remove markdown code blocks
+            let cleaned = jsonString.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+
+            // Try to parse first - if it works, return as is
+            JSON.parse(cleaned);
+            return cleaned;
+        } catch (e) {
+            // If parsing fails, do aggressive cleaning
+            let cleaned = jsonString.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+
+            // Remove control characters except newlines and tabs in the raw string
+            cleaned = cleaned.replace(/[\x00-\x08\x0B-\x0C\x0E-\x1F\x7F]/g, '');
+
+            // Replace literal newlines and tabs with escaped versions
+            cleaned = cleaned.replace(/(?<!\\)\n/g, ' ').replace(/(?<!\\)\r/g, '').replace(/(?<!\\)\t/g, ' ');
+
+            // Remove multiple spaces
+            cleaned = cleaned.replace(/\s+/g, ' ');
+
+            return cleaned;
+        }
+    }
+
     async makeRequest(messages, options = {}) {
         if (!this.apiKey) {
             throw new Error('Mistral API key is not configured');
@@ -76,11 +102,12 @@ Current Tags: ${tagsString}`
 
         try {
             const response = await this.makeRequest(messages);
-            // Remove markdown code blocks if present
-            const cleanResponse = response.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+            const cleanResponse = this.sanitizeJSON(response);
+            console.log('Cleaned response:', cleanResponse);
             return JSON.parse(cleanResponse);
         } catch (error) {
             console.error('Task enhancement failed:', error);
+            console.error('Raw response:', response);
             return null;
         }
     }
@@ -111,7 +138,7 @@ Description: ${taskDescription}`
 
         try {
             const response = await this.makeRequest(messages);
-            const cleanResponse = response.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+            const cleanResponse = this.sanitizeJSON(response);
             return JSON.parse(cleanResponse);
         } catch (error) {
             console.error('Subtask generation failed:', error);
@@ -140,7 +167,7 @@ Description: ${taskDescription}`
 
         try {
             const response = await this.makeRequest(messages);
-            const cleanResponse = response.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+            const cleanResponse = this.sanitizeJSON(response);
             return JSON.parse(cleanResponse);
         } catch (error) {
             console.error('Natural language parsing failed:', error);
@@ -167,7 +194,7 @@ Description: ${taskDescription}`
 
         try {
             const response = await this.makeRequest(messages);
-            const cleanResponse = response.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+            const cleanResponse = this.sanitizeJSON(response);
             const result = JSON.parse(cleanResponse);
             return result.tags || [];
         } catch (error) {
@@ -188,33 +215,18 @@ Description: ${taskDescription}`
         const messages = [
             {
                 role: 'system',
-                content: `You are a productivity analyst. Analyze the given tasks and provide insights about productivity patterns, bottlenecks, and recommendations. Respond ONLY with valid JSON, no markdown formatting. Use this exact structure:
-{
-  "insights": [
-    {
-      "type": "bottleneck|pattern|recommendation",
-      "title": "insight title",
-      "description": "detailed description",
-      "severity": "low|medium|high"
-    }
-  ],
-  "summary": {
-    "totalTasks": 0,
-    "completionRate": "0%",
-    "averageTimeInProgress": "N/A",
-    "mostCommonTags": ["tag1", "tag2"]
-  }
-}`
+                content: `You are a productivity analyst. Respond with ONLY valid JSON. No markdown, no code blocks. Keep all text in single lines without line breaks. Use simple short descriptions under 100 characters. Required structure: {"insights":[{"type":"bottleneck","title":"Short title","description":"Brief description","severity":"high"}],"summary":{"totalTasks":5,"completionRate":"60%","averageTimeInProgress":"2 days","mostCommonTags":["tag1"]}}`
             },
             {
                 role: 'user',
-                content: `Analyze these tasks for productivity insights: ${JSON.stringify(taskSummary)}`
+                content: `Analyze ${tasks.length} tasks. Provide 2-3 insights max. Keep descriptions under 100 chars. Tasks: ${JSON.stringify(taskSummary).substring(0, 1000)}`
             }
         ];
 
         try {
             const response = await this.makeRequest(messages);
-            const cleanResponse = response.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+            const cleanResponse = this.sanitizeJSON(response);
+            console.log('Cleaned productivity response:', cleanResponse);
             const parsed = JSON.parse(cleanResponse);
 
             // Ensure the response has the expected structure
@@ -237,37 +249,28 @@ Description: ${taskDescription}`
     }
 
     async smartPrioritization(tasks) {
+        const taskData = tasks.map(t => ({
+            id: t.id,
+            title: t.title,
+            priority: t.priority,
+            status: t.status
+        }));
+
         const messages = [
             {
                 role: 'system',
-                content: `You are a task prioritization AI. Analyze the given tasks and suggest optimal priority levels based on urgency, importance, and dependencies. Respond ONLY with valid JSON, no markdown formatting. Use this exact structure:
-{
-  "recommendations": [
-    {
-      "taskId": "task_id",
-      "currentPriority": "current",
-      "recommendedPriority": "recommended",
-      "reason": "explanation for the change"
-    }
-  ]
-}`
+                content: `You are a task prioritization AI. Respond with ONLY valid JSON. No markdown, no code blocks. Keep reasons under 80 characters. Required structure: {"recommendations":[{"taskId":"task_123","currentPriority":"low","recommendedPriority":"high","reason":"Short reason"}]}`
             },
             {
                 role: 'user',
-                content: `Analyze and suggest priority changes for these tasks: ${JSON.stringify(tasks.map(t => ({
-                    id: t.id,
-                    title: t.title,
-                    description: t.description,
-                    priority: t.priority,
-                    status: t.status,
-                    tags: t.tags
-                })))}`
+                content: `Suggest priority changes for ${tasks.length} tasks. Max 3 recommendations. Keep reasons under 80 chars. Tasks: ${JSON.stringify(taskData).substring(0, 1000)}`
             }
         ];
 
         try {
             const response = await this.makeRequest(messages);
-            const cleanResponse = response.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+            const cleanResponse = this.sanitizeJSON(response);
+            console.log('Cleaned prioritization response:', cleanResponse);
             const parsed = JSON.parse(cleanResponse);
 
             // Ensure the response has the expected structure
