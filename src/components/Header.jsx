@@ -4,21 +4,27 @@ import { Moon, Sun, Plus, Sparkles, LogOut, User } from 'lucide-react';
 const Header = ({ theme, onToggleTheme, onAddTask, onOpenAIInsights, user, onLogout }) => {
     return (
         <header className="header">
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
                 <h1>AI Kanban Board</h1>
                 {user && (
                     <div style={{
                         display: 'flex',
                         alignItems: 'center',
                         gap: '0.5rem',
-                        padding: '0.5rem 1rem',
+                        padding: '0.5rem 0.75rem',
                         background: 'var(--bg-tertiary)',
                         borderRadius: '6px',
-                        fontSize: '0.875rem',
-                        color: 'var(--text-muted)'
+                        fontSize: '0.75rem',
+                        color: 'var(--text-muted)',
+                        maxWidth: '200px',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap'
                     }}>
-                        <User size={14} />
-                        {user.email}
+                        <User size={12} />
+                        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                            {user.email}
+                        </span>
                     </div>
                 )}
             </div>
@@ -29,7 +35,7 @@ const Header = ({ theme, onToggleTheme, onAddTask, onOpenAIInsights, user, onLog
                     title="AI Productivity Insights"
                 >
                     <Sparkles size={16} />
-                    AI Insights
+                    <span>AI Insights</span>
                 </button>
                 <button
                     onClick={onToggleTheme}
@@ -42,11 +48,12 @@ const Header = ({ theme, onToggleTheme, onAddTask, onOpenAIInsights, user, onLog
                 </button>
                 <button onClick={onAddTask} className="btn btn-primary">
                     <Plus size={16} />
-                    Add Task
+                    <span>Add Task</span>
                 </button>
                 {user && (
                     <button onClick={onLogout} className="btn btn-secondary" title="Logout">
                         <LogOut size={16} />
+                        <span>Logout</span>
                     </button>
                 )}
             </div>
