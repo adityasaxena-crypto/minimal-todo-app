@@ -215,10 +215,24 @@ Description: ${taskDescription}`
         try {
             const response = await this.makeRequest(messages);
             const cleanResponse = response.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-            return JSON.parse(cleanResponse);
+            const parsed = JSON.parse(cleanResponse);
+
+            // Ensure the response has the expected structure
+            if (!parsed.insights) parsed.insights = [];
+            if (!parsed.summary) {
+                parsed.summary = {
+                    totalTasks: tasks.length,
+                    completionRate: `${Math.round((tasks.filter(t => t.status === 'done').length / tasks.length) * 100)}%`,
+                    averageTimeInProgress: 'N/A',
+                    mostCommonTags: []
+                };
+            }
+
+            return parsed;
         } catch (error) {
             console.error('Productivity analysis failed:', error);
-            return null;
+            console.error('Error details:', error.message);
+            throw error;
         }
     }
 
@@ -254,10 +268,16 @@ Description: ${taskDescription}`
         try {
             const response = await this.makeRequest(messages);
             const cleanResponse = response.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-            return JSON.parse(cleanResponse);
+            const parsed = JSON.parse(cleanResponse);
+
+            // Ensure the response has the expected structure
+            if (!parsed.recommendations) parsed.recommendations = [];
+
+            return parsed;
         } catch (error) {
             console.error('Smart prioritization failed:', error);
-            return { recommendations: [] };
+            console.error('Error details:', error.message);
+            throw error;
         }
     }
 }
