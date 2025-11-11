@@ -8,7 +8,8 @@ const Column = ({
     tasks,
     onEditTask,
     onDeleteTask,
-    onAIEnhanceTask
+    onAIEnhanceTask,
+    onArchiveTask
 }) => {
     return (
         <div className="column" data-status={columnId}>
@@ -35,6 +36,7 @@ const Column = ({
                                     onEdit={onEditTask}
                                     onDelete={onDeleteTask}
                                     onAIEnhance={onAIEnhanceTask}
+                                    onArchive={onArchiveTask}
                                 />
                             ))
                         )}

@@ -700,7 +700,19 @@ textarea {
 
     .header-actions .theme-toggle {
         flex: 0 0 auto;
-        min-width: 40px;
+        min-width: 44px;
+        height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--bg-tertiary);
+        border: 1px solid var(--border-color);
+    }
+
+    .header-actions .theme-toggle .theme-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
     .board {

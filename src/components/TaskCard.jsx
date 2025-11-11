@@ -1,8 +1,8 @@
 import React from 'react';
-import { Edit, Trash2, Sparkles } from 'lucide-react';
+import { Edit, Trash2, Sparkles, Archive } from 'lucide-react';
 import { Draggable } from 'react-beautiful-dnd';
 
-const TaskCard = ({ task, index, onEdit, onDelete, onAIEnhance }) => {
+const TaskCard = ({ task, index, onEdit, onDelete, onAIEnhance, onArchive }) => {
     const priorityClass = `priority-${task.priority}`;
     const createdDate = new Date(task.createdAt).toLocaleDateString();
 
@@ -25,6 +25,19 @@ const TaskCard = ({ task, index, onEdit, onDelete, onAIEnhance }) => {
                     <div className="task-header">
                         <div className="task-title">{task.title}</div>
                         <div className="task-actions">
+                            {task.status === 'done' && onArchive && (
+                                <button
+                                    className="task-action-btn"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        onArchive(task.id);
+                                    }}
+                                    title="Archive task"
+                                    style={{ color: 'var(--warning)' }}
+                                >
+                                    <Archive size={12} />
+                                </button>
+                            )}
                             <button
                                 className="task-action-btn ai"
                                 onClick={(e) => {

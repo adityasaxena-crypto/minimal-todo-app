@@ -1,7 +1,7 @@
 import React from 'react';
-import { Moon, Sun, Plus, Sparkles, LogOut, User } from 'lucide-react';
+import { Moon, Sun, Plus, Sparkles, LogOut, User, Archive } from 'lucide-react';
 
-const Header = ({ theme, onToggleTheme, onAddTask, onOpenAIInsights, user, onLogout }) => {
+const Header = ({ theme, onToggleTheme, onAddTask, onOpenAIInsights, onOpenArchive, user, onLogout }) => {
     return (
         <header className="header">
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
@@ -29,6 +29,14 @@ const Header = ({ theme, onToggleTheme, onAddTask, onOpenAIInsights, user, onLog
                 )}
             </div>
             <div className="header-actions">
+                <button
+                    onClick={onOpenArchive}
+                    className="btn btn-secondary"
+                    title="View Archived Tasks"
+                >
+                    <Archive size={16} />
+                    <span>Archive</span>
+                </button>
                 <button
                     onClick={onOpenAIInsights}
                     className="btn btn-ai"

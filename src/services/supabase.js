@@ -47,13 +47,27 @@ export const authService = {
 
 // Task database operations
 export const taskService = {
-    // Get all tasks for current user
+    // Get all tasks for current user (excluding archived)
     async getTasks(userId) {
         const { data, error } = await supabase
             .from('tasks')
             .select('*')
             .eq('user_id', userId)
+            .eq('archived', false)
             .order('created_at', { ascending: false });
+
+        if (error) throw error;
+        return data || [];
+    },
+
+    // Get archived tasks for current user
+    async getArchivedTasks(userId) {
+        const { data, error } = await supabase
+            .from('tasks')
+            .select('*')
+            .eq('user_id', userId)
+            .eq('archived', true)
+            .order('archived_at', { ascending: false });
 
         if (error) throw error;
         return data || [];
@@ -110,6 +124,38 @@ export const taskService = {
             .eq('id', taskId);
 
         if (error) throw error;
+    },
+
+    // Archive a task
+    async archiveTask(taskId) {
+        const { data, error } = await supabase
+            .from('tasks')
+            .update({
+                archived: true,
+                archived_at: new Date().toISOString()
+            })
+            .eq('id', taskId)
+            .select()
+            .single();
+
+        if (error) throw error;
+        return data;
+    },
+
+    // Unarchive a task
+    async unarchiveTask(taskId) {
+        const { data, error } = await supabase
+            .from('tasks')
+            .update({
+                archived: false,
+                archived_at: null
+            })
+            .eq('id', taskId)
+            .select()
+            .single();
+
+        if (error) throw error;
+        return data;
     },
 
     // Subscribe to task changes

@@ -285,4 +285,41 @@ Description: ${taskDescription}`
     }
 }
 
+    async sortArchivedTasks(tasks) {
+    const taskData = tasks.map(t => ({
+        id: t.id,
+        title: t.title,
+        description: t.description,
+        priority: t.priority,
+        tags: t.tags,
+        archivedAt: t.archivedAt
+    }));
+
+    const messages = [
+        {
+            role: 'system',
+            content: `You are an AI that organizes archived tasks intelligently. Group and sort tasks by themes, projects, or categories. Respond with ONLY valid JSON. Structure: {"categories":[{"name":"Category Name","description":"Brief description","taskIds":["id1","id2"]}]}`
+        },
+        {
+            role: 'user',
+            content: `Organize these ${tasks.length} archived tasks into logical categories. Max 5 categories. Tasks: ${JSON.stringify(taskData).substring(0, 2000)}`
+        }
+    ];
+
+    try {
+        const response = await this.makeRequest(messages);
+        const cleanResponse = this.sanitizeJSON(response);
+        console.log('Cleaned archive sort response:', cleanResponse);
+        const parsed = JSON.parse(cleanResponse);
+
+        if (!parsed.categories) parsed.categories = [];
+
+        return parsed;
+    } catch (error) {
+        console.error('Archive sorting failed:', error);
+        return { categories: [] };
+    }
+}
+}
+
 export default new MistralAIService();
