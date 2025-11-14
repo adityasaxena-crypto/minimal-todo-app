@@ -5,6 +5,7 @@ import Column from './components/Column';
 import TaskModal from './components/TaskModal';
 import AIInsightsModal from './components/AIInsightsModal';
 import DeleteConfirmModal from './components/DeleteConfirmModal';
+import ArchiveModal from './components/ArchiveModal';
 import Auth from './components/Auth';
 import { useTheme } from './hooks/useTheme';
 import mistralAI from './services/mistralAI';
@@ -26,8 +27,10 @@ function App() {
     // Modal states
     const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
     const [isAIInsightsOpen, setIsAIInsightsOpen] = useState(false);
+    const [isArchiveOpen, setIsArchiveOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [editingTask, setEditingTask] = useState(null);
+    const [archivedTasks, setArchivedTasks] = useState([]);
     const [taskToDelete, setTaskToDelete] = useState(null);
 
     // Check authentication status on mount
@@ -192,6 +195,67 @@ function App() {
         setIsDeleteModalOpen(true);
     };
 
+    // Archive handlers
+    const handleArchiveTask = async (taskId) => {
+        if (!user) return;
+
+        try {
+            await taskService.archiveTask(taskId);
+            setTasks(prev => prev.filter(task => task.id !== taskId));
+        } catch (error) {
+            console.error('Error archiving task:', error);
+            alert('Failed to archive task');
+        }
+    };
+
+    const handleOpenArchive = async () => {
+        if (!user) return;
+
+        try {
+            const archived = await taskService.getArchivedTasks(user.id);
+            const formattedArchived = archived.map(task => ({
+                id: task.id,
+                title: task.title,
+                description: task.description,
+                priority: task.priority,
+                status: task.status,
+                tags: task.tags || [],
+                archivedAt: task.archived_at,
+                createdAt: task.created_at
+            }));
+            setArchivedTasks(formattedArchived);
+            setIsArchiveOpen(true);
+        } catch (error) {
+            console.error('Error loading archived tasks:', error);
+            alert('Failed to load archived tasks');
+        }
+    };
+
+    const handleUnarchiveTask = async (taskId) => {
+        if (!user) return;
+
+        try {
+            await taskService.unarchiveTask(taskId);
+            setArchivedTasks(prev => prev.filter(task => task.id !== taskId));
+            await loadTasks(user.id);
+        } catch (error) {
+            console.error('Error unarchiving task:', error);
+            alert('Failed to restore task');
+        }
+    };
+
+    const handleDeleteArchivedTask = async (taskId) => {
+        if (!user) return;
+
+        try {
+            await taskService.deleteTask(taskId);
+            setArchivedTasks(prev => prev.filter(task => task.id !== taskId));
+        } catch (error) {
+            console.error('Error deleting archived task:', error);
+            alert('Failed to delete task');
+        }
+    };
+
     const confirmDelete = () => {
         if (taskToDelete) {
             deleteTask(taskToDelete.id);
@@ -269,6 +333,7 @@ function App() {
                 onToggleTheme={toggleTheme}
                 onAddTask={handleAddTask}
                 onOpenAIInsights={() => setIsAIInsightsOpen(true)}
+                onOpenArchive={handleOpenArchive}
                 user={user}
                 onLogout={handleLogout}
             />
@@ -284,6 +349,7 @@ function App() {
                             onEditTask={handleEditTask}
                             onDeleteTask={handleDeleteTask}
                             onAIEnhanceTask={handleAIEnhanceTask}
+                            onArchiveTask={handleArchiveTask}
                         />
                     ))}
                 </main>
@@ -301,6 +367,14 @@ function App() {
                 onClose={() => setIsAIInsightsOpen(false)}
                 tasks={tasks}
                 onApplyRecommendation={handleApplyPriorityRecommendation}
+            />
+
+            <ArchiveModal
+                isOpen={isArchiveOpen}
+                onClose={() => setIsArchiveOpen(false)}
+                archivedTasks={archivedTasks}
+                onUnarchive={handleUnarchiveTask}
+                onDelete={handleDeleteArchivedTask}
             />
 
             <DeleteConfirmModal
